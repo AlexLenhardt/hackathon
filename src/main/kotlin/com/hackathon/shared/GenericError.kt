@@ -1,4 +1,4 @@
-package com.hackathon.example.domain.exceptions
+package com.hackathon.shared
 
 /**
  * This class should be used as a basis for creating predefined error types.

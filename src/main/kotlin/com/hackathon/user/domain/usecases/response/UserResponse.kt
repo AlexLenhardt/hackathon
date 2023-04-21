@@ -1,9 +1,9 @@
 package com.hackathon.example.domain.usecases.response
 
-import com.hackathon.example.domain.entities.Example
+import com.hackathon.user.domain.entities.User
 import com.hackathon.shared.GenericError
 
-class ExampleResponse(
-    val example: Example? = null,
+class UserResponse(
+    val user: User? = null,
     val error: GenericError? = null,
 )
