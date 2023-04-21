@@ -15,8 +15,5 @@ import org.springframework.boot.runApplication
 class HackathonApplication
 
 fun main(args: Array<String>) {
-	transaction {
-		SchemaUtils.create(CalledDatabase)
-	}
 	runApplication<HackathonApplication>(*args)
 }
