@@ -1,6 +1,6 @@
 package com.hackathon
 
-import com.hackathon.called.infrastructure.repository.database.CalledDatabase
+//import com.hackathon.called.infrastructure.repository.database.CalledDatabase
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.autoconfigure.SpringBootApplication

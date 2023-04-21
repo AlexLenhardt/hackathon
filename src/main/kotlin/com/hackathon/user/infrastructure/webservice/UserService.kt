@@ -2,7 +2,6 @@ package com.hackathon.user.infrastructure.webservice
 
 import com.hackathon.example.domain.usecases.UserUseCase
 import com.hackathon.example.domain.usecases.response.UserResponse
-import com.hackathon.user.domain.entities.User
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
