@@ -7,4 +7,5 @@ import org.jetbrains.exposed.sql.*
 object UserDatabase : Table("user") {
     var uuid = uuid("uuid").uniqueIndex()
     var name = varchar("name", 100)
+    var type = integer("type")
 }

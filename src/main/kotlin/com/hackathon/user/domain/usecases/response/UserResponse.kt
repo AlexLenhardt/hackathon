@@ -1,4 +1,4 @@
-package com.hackathon.example.domain.usecases.response
+package com.hackathon.user.domain.usecases.response
 
 import com.hackathon.user.domain.entities.User
 import com.hackathon.shared.GenericError

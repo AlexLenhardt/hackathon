@@ -1,7 +1,7 @@
 package com.hackathon.user.domain.usecases.implementation
 
 import com.hackathon.example.domain.usecases.UserUseCase
-import com.hackathon.example.domain.usecases.response.UserResponse
+import com.hackathon.user.domain.usecases.response.UserResponse
 import com.hackathon.user.domain.exceptions.USER_NOT_FOUND
 import com.hackathon.user.domain.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -16,7 +16,12 @@ class UserUseCaseImplementation(
                 error = USER_NOT_FOUND
             )
         }
+
         val user = userRepository.get(userName)
-        return UserResponse(user = user)
+        return if (user == null){
+            UserResponse(error = USER_NOT_FOUND)
+        }else {
+            UserResponse(user = user)
+        }
     }
 }
