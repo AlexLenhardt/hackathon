@@ -15,7 +15,9 @@ import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Repository
 
+@Repository
 class TicketRepositoryImplementation : TicketRepository {
     override fun listAllTicket(): List<Ticket> {
         return transaction {
@@ -31,7 +33,7 @@ class TicketRepositoryImplementation : TicketRepository {
                         number = it[TicketDatabase.number],
                         reason = Reason(
                             uuid = it[ReasonDatabase.uuid],
-                            description = it[ReasonDatabase.description]
+                            description = it[ReasonDatabase.description],
                         ),
                         title = it[TicketDatabase.title],
                         priority = Priority(

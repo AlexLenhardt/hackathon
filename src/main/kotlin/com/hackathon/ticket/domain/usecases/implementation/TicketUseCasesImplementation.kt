@@ -6,7 +6,9 @@ import com.hackathon.ticket.domain.usecases.TicketUseCases
 import org.springframework.stereotype.Service
 
 @Service
-class TicketUseCasesImplementation(val ticketRepository: TicketRepository) : TicketUseCases{
+class TicketUseCasesImplementation(
+    val ticketRepository: TicketRepository
+) : TicketUseCases{
     override fun getAll(): List<Ticket>? {
         TODO("Not yet implemented")
     }
