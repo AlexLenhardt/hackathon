@@ -14,4 +14,5 @@ object TicketDatabase : Table("ticket") {
     var situationUUID = reference("uuid_situation", SituationDatabase.uuid)
     var modified_at = datetime("modified_at")
     var create_at = datetime("create_at")
+    var contact = varchar("contact", 100)
 }
