@@ -69,7 +69,7 @@ class TicketRepositoryImplementation : TicketRepository {
                         it[TicketDatabase.modified_at] = ticket.modified_at!!
                         it[TicketDatabase.create_at] = ticket.create_at!!
                         it[TicketDatabase.contact] = ticket.contact!!
-                    }.resultedValues!!
+            }.resultedValues!!
         }
     }
 }
