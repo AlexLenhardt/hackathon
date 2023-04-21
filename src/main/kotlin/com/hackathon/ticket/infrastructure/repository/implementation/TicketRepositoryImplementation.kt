@@ -1,23 +1,17 @@
 package com.hackathon.ticket.infrastructure.repository.implementation
 
-import com.hackathon.ticket.domain.entities.Priority
-import com.hackathon.ticket.domain.entities.Reason
-import com.hackathon.ticket.domain.entities.Situation
-import com.hackathon.ticket.domain.entities.Ticket
+import com.hackathon.ticket.domain.entities.*
 import com.hackathon.ticket.domain.repository.TicketRepository
-import com.hackathon.ticket.infrastructure.repository.database.PriorityDatabase
-import com.hackathon.ticket.infrastructure.repository.database.ReasonDatabase
-import com.hackathon.ticket.infrastructure.repository.database.SituationDatabase
-import com.hackathon.ticket.infrastructure.repository.database.TicketDatabase
+import com.hackathon.ticket.infrastructure.repository.database.*
 import com.hackathon.user.domain.entities.User
 import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Repository
 import java.util.*
 
-@Service
+@Repository
 class TicketRepositoryImplementation : TicketRepository {
     override fun listAllTicket(): List<Ticket> {
         return transaction {
@@ -72,6 +66,34 @@ class TicketRepositoryImplementation : TicketRepository {
         }
     }
 
+    private fun getDescriptionByTicket(ticketUUID: UUID): List<DescriptionTicket> {
+        return transaction {
+            DescriptionTicketDatabase
+                .innerJoin(UserDatabase, { UserDatabase.uuid }, { DescriptionTicketDatabase.userUUID })
+                .slice(
+                    DescriptionTicketDatabase.uuid,
+                    UserDatabase.uuid,
+                    UserDatabase.name,
+                    DescriptionTicketDatabase.create_at,
+                    DescriptionTicketDatabase.description
+                )
+                .select(
+                    DescriptionTicketDatabase.ticketUUID eq ticketUUID
+                )
+                .map{
+                    DescriptionTicket(
+                        uuid = it[DescriptionTicketDatabase.uuid],
+                        user = User(
+                            uuid = it[UserDatabase.uuid],
+                            name = it[UserDatabase.name]
+                        ),
+                        create_at = it[DescriptionTicketDatabase.create_at],
+                        description = it[DescriptionTicketDatabase.description]
+                    )
+                }
+        }
+    }
+
     override fun findByUUID(uuid: UUID): Ticket? {
         return transaction {
             TicketDatabase
@@ -121,7 +143,8 @@ class TicketRepositoryImplementation : TicketRepository {
                         ),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
-                        contact = it[TicketDatabase.contact]
+                        contact = it[TicketDatabase.contact],
+                        descriptions = getDescriptionByTicket(it[TicketDatabase.uuid])
                     )
                 }
                 .firstOrNull()

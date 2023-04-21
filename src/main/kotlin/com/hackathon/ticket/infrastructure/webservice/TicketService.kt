@@ -15,12 +15,12 @@ import java.util.UUID
 class TicketService (val ticketUseCases: TicketUseCases) {
 
     @GetMapping
-    fun ListAllTickets() : List<Ticket>{
+    fun listAllTickets() : List<Ticket>{
         return ticketUseCases.getAll()
     }
 
     @GetMapping("/{uuid}")
-    fun ListTicket(@PathVariable(value = "uuid") uuid : UUID): Ticket{
+    fun listTicket(@PathVariable(value = "uuid") uuid : UUID): Ticket{
         return ticketUseCases.getTicket(uuid)
     }
 }

@@ -18,7 +18,6 @@ class TicketUseCasesImplementation(val ticketRepository: TicketRepository) : Tic
         if(ticket == null){
             TICKET_NOT_FOUND
         }
-
         return ticket!!
     }
 }
