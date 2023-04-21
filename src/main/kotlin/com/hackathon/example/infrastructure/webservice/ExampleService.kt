@@ -1,8 +1,8 @@
 package com.hackathon.example.infrastructure.webservice
 
 import com.hackathon.example.domain.entities.Example
-import com.hackathon.example.domain.usecases.ExampleUseCase
 import com.hackathon.example.domain.usecases.response.ExampleResponse
+import com.hackathon.user.domain.usecases.ExampleUseCase
 import org.springframework.web.bind.annotation.*
 
 @RestController
