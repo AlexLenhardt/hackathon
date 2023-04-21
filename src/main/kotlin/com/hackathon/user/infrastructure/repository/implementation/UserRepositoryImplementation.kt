@@ -1,7 +1,7 @@
 package com.hackathon.user.infrastructure.repository.implementation
 
-import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import com.hackathon.user.domain.entities.User
+import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import com.hackathon.user.domain.repository.UserRepository
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
