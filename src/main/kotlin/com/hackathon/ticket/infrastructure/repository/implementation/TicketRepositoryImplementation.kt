@@ -13,9 +13,13 @@ import com.hackathon.user.domain.entities.User
 import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Service
 
+@Repository
 class TicketRepositoryImplementation : TicketRepository {
     override fun listAllTicket(): List<Ticket> {
         return transaction {
@@ -50,6 +54,22 @@ class TicketRepositoryImplementation : TicketRepository {
                         create_at = it[TicketDatabase.create_at]
                     )
                 }
+        }
+    }
+
+    override fun addTicket(ticket: Ticket) {
+         transaction {
+            TicketDatabase.insert {
+                        it[TicketDatabase.uuid] = ticket.uuid!!
+                        it[TicketDatabase.number] = ticket.number!!
+                        it[TicketDatabase.reasonUUID] = ticket.reason.uuid!!
+                        it[TicketDatabase.userUUID] = ticket.user.uuid!!
+                        it[TicketDatabase.situationUUID] = ticket.situation.uuid!!
+                        it[TicketDatabase.title] = ticket.title!!
+                        it[TicketDatabase.modified_at] = ticket.modified_at!!
+                        it[TicketDatabase.create_at] = ticket.create_at!!
+                        it[TicketDatabase.contact] = ticket.contact!!
+                    }.resultedValues!!
         }
     }
 }
