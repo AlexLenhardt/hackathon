@@ -1,11 +1,13 @@
 package com.hackathon.ticket.infrastructure.repository.database
 
+import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
-object DescriptionTicketDatabase : Table("descriptionTicket") {
+object DescriptionTicketDatabase : Table("description_ticket") {
     var uuid = uuid("uuid").uniqueIndex()
-    var userUUID = uuid("uuid_user")
+    var ticketUUID = reference("uuid_ticket", TicketDatabase.uuid)
+    var userUUID = reference("uuid_user", UserDatabase.uuid)
     var create_at = date("create_at")
     var description = varchar("description", 60)
 }

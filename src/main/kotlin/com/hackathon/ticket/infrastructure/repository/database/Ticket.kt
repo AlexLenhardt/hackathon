@@ -1,16 +1,17 @@
 package com.hackathon.ticket.infrastructure.repository.database
 
+import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
 object TicketDatabase : Table("ticket") {
     var uuid = uuid("uuid").uniqueIndex()
     var number = integer("number").autoIncrement()
-    var reasonUUID =  uuid("uuid_reason")
+    var reasonUUID =  reference("uuid_reason", ReasonDatabase.uuid)
     var title = varchar("title", 30)
-    var priorityUUID = uuid("uuid_priority")
-    var userUUID = uuid("uuid_user")
-    var situationUUID = uuid("uuid_situation")
+    var priorityUUID = reference("uuid_priority", PriorityDatabase.uuid)
+    var userUUID = reference("uuid_user", UserDatabase.uuid)
+    var situationUUID = reference("uuid_situation", SituationDatabase.uuid)
     var modified_at = date("modified_at")
     var create_at = date("create_at")
 }
