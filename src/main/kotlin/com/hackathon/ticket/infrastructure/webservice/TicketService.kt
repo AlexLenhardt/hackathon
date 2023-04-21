@@ -4,8 +4,10 @@ import com.hackathon.example.domain.usecases.UserUseCase
 import com.hackathon.ticket.domain.entities.Ticket
 import com.hackathon.ticket.domain.usecases.TicketUseCases
 import com.hackathon.ticket.domain.usecases.response.ListTicketResponse
+import com.hackathon.ticket.domain.usecases.response.TicketResponse
 import org.springframework.web.bind.annotation.*
-import java.util.UUID
+import java.util.*
+
 
 @RestController
 @CrossOrigin("*")
@@ -14,6 +16,10 @@ class TicketService(
     val ticketUseCases: TicketUseCases,
     val userUseCase: UserUseCase,
 ) {
+    @PostMapping
+    fun addTicket(@RequestBody ticket: Ticket?): TicketResponse {
+        return ticketUseCases.addTicket(ticket)
+    }
 
     @GetMapping
     fun listAllTickets(

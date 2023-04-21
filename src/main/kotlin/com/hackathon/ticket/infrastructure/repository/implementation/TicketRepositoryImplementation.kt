@@ -14,9 +14,14 @@ import com.hackathon.user.domain.entities.User
 import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import org.springframework.stereotype.Repository
+import org.springframework.stereotype.Service
 
 @Repository
 class TicketRepositoryImplementation : TicketRepository {
@@ -174,6 +179,23 @@ class TicketRepositoryImplementation : TicketRepository {
                 }
         }
     }
+
+    override fun addTicket(ticket: Ticket) {
+        transaction {
+            TicketDatabase.insert {
+                it[uuid] = ticket.uuid!!
+                it[number] = ticket.number!!
+                it[reasonUUID] = ticket.reason!!.uuid!!
+                it[userUUID] = ticket.user!!.uuid!!
+                it[situationUUID] = ticket.situation!!.uuid!!
+                it[title] = ticket.title!!
+                it[modified_at] = ticket.modified_at!!
+                it[create_at] = ticket.create_at!!
+                it[contact] = ticket.contact!!
+            }.resultedValues!!
+        }
+    }
+
 }
 
 fun ResultRow.toSituation(): Situation {

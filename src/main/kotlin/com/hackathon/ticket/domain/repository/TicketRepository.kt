@@ -10,4 +10,6 @@ interface TicketRepository {
     fun findByUUID(uuid: UUID): Ticket?
 
     fun listAllTicketApproval(userUUID: UUID): List<Ticket>
+
+    fun addTicket(ticket: Ticket)
 }
