@@ -1,4 +1,4 @@
-package com.hackathon.called.infrastructure.repository.database
+package com.hackathon.ticket.infrastructure.repository.database
 
 import org.jetbrains.exposed.sql.Table
 object PriorityDatabase : Table("priority") {

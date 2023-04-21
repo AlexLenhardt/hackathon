@@ -1,9 +1,9 @@
-package com.hackathon.called.infrastructure.repository.database
+package com.hackathon.ticket.infrastructure.repository.database
 
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
-object DescriptionCalledDatabase : Table("descriptionCalled") {
+object DescriptionTicketDatabase : Table("descriptionTicket") {
     var uuid = uuid("uuid").uniqueIndex()
     var userUUID = uuid("uuid_user")
     var create_at = date("create_at")
