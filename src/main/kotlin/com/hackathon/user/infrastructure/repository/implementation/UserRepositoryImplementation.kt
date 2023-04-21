@@ -16,6 +16,7 @@ class UserRepositoryImplementation : UserRepository {
                 .slice(
                     UserDatabase.uuid,
                     UserDatabase.name,
+                    UserDatabase.type,
                 )
                 .select(
                     UserDatabase.name eq userName
@@ -24,6 +25,7 @@ class UserRepositoryImplementation : UserRepository {
                     User(
                         uuid = it[UserDatabase.uuid],
                         name = it[UserDatabase.name],
+                        type = it[UserDatabase.type],
                     )
                 }
                 .firstOrNull()

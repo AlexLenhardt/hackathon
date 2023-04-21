@@ -35,7 +35,7 @@ class TicketRepositoryImplementation : TicketRepository {
                         number = it[TicketDatabase.number],
                         reason = Reason(
                             uuid = it[ReasonDatabase.uuid],
-                            description = it[ReasonDatabase.description]
+                            description = it[ReasonDatabase.description],
                         ),
                         title = it[TicketDatabase.title],
                         priority = Priority(

@@ -2,7 +2,7 @@ package com.hackathon.user.domain.exceptions
 
 import com.hackathon.shared.GenericError
 
-val USER_NOT_FOUND = UserException("USER_NOT_FOUND", "This error is an example.")
+val USER_NOT_FOUND = UserException("USER_NOT_FOUND", "User not found.")
 
 
 class UserException(

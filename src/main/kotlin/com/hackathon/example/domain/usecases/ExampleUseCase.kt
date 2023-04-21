@@ -1,8 +1,6 @@
 package com.hackathon.example.domain.usecases
 
-import com.hackathon.example.domain.entities.Example
-import com.hackathon.example.domain.usecases.response.UserResponse
-import java.util.UUID
+import com.hackathon.user.domain.usecases.response.UserResponse
 
 
 interface UserUseCase {
