@@ -247,6 +247,5 @@ fun ResultRow.toReason(): Reason {
         description = this[ReasonDatabase.description],
         isInfrastructure = this[ReasonDatabase.isInfrastructure],
         needsApproval = this[ReasonDatabase.needsApproval]
-
     )
 }
