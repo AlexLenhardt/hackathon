@@ -2,7 +2,9 @@ package com.hackathon.ticket.infrastructure.repository.implementation
 
 import com.hackathon.ticket.domain.entities.*
 import com.hackathon.ticket.domain.entities.Situation.Companion.approved
+import com.hackathon.ticket.domain.entities.Situation.Companion.excluded
 import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
+import com.hackathon.ticket.domain.entities.Situation.Companion.reproved
 import com.hackathon.ticket.domain.repository.TicketRepository
 import com.hackathon.ticket.infrastructure.repository.database.*
 import com.hackathon.user.domain.entities.User
@@ -110,8 +112,7 @@ class TicketRepositoryImplementation : TicketRepository {
                 .innerJoin(UserDatabase, { UserDatabase.uuid }, { TicketDatabase.userUUID })
                 .toSliceTicket()
                 .select(
-                    (ReasonDatabase.needsApproval eq true) and
-                            (SituationDatabase.code eq pendentApproval)
+                    SituationDatabase.code eq pendentApproval
                 )
                 .map {
                     Ticket(
@@ -153,14 +154,49 @@ class TicketRepositoryImplementation : TicketRepository {
                 .update({
                     TicketDatabase.uuid eq ticketUUID
                 }) {
-                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                    it[TicketDatabase.situationUUID] = situationUUID
+                }
+        }
+    }
+
+    override fun reprove(ticketUUID: UUID, userUUID: UUID, description: String) {
+        val situationUUID = getSituationByCode(reproved)!!.uuid!!
+        transaction {
+            TicketDatabase
+                .update({
+                    TicketDatabase.uuid eq ticketUUID
+                }) {
+                    it[TicketDatabase.situationUUID] = situationUUID
                 }
 
-            SituationTicketDatabase
+            DescriptionTicketDatabase
                 .insert {
-                    it[SituationTicketDatabase.userUUID] = userUUID
-                    it[SituationTicketDatabase.ticketUUID] = ticketUUID
-                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                    it[uuid] = UUID.randomUUID()
+                    it[DescriptionTicketDatabase.ticketUUID] = ticketUUID
+                    it[DescriptionTicketDatabase.userUUID] = userUUID
+                    it[DescriptionTicketDatabase.situationUUID] = situationUUID
+                    it[DescriptionTicketDatabase.description] = description
+                }
+        }
+    }
+
+    override fun exclude(ticketUUID: UUID, userUUID: UUID, description: String) {
+        val situationUUID = getSituationByCode(excluded)!!.uuid!!
+        transaction {
+            TicketDatabase
+                .update({
+                    TicketDatabase.uuid eq ticketUUID
+                }) {
+                    it[TicketDatabase.situationUUID] = situationUUID
+                }
+
+            DescriptionTicketDatabase
+                .insert {
+                    it[uuid] = UUID.randomUUID()
+                    it[DescriptionTicketDatabase.ticketUUID] = ticketUUID
+                    it[DescriptionTicketDatabase.userUUID] = userUUID
+                    it[DescriptionTicketDatabase.situationUUID] = situationUUID
+                    it[DescriptionTicketDatabase.description] = description
                 }
         }
     }
