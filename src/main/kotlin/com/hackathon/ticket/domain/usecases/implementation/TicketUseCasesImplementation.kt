@@ -83,7 +83,7 @@ class TicketUseCasesImplementation(
     override fun approval(uuid: UUID, userName: String): TicketResponse {
         return try {
             val user = userRepository.get(userName)
-            if (!user!!.isManager()){
+            if (!user!!.isManager()) {
                 return TicketResponse(error = USER_NOT_ALLOWED)
             }
 
@@ -122,6 +122,7 @@ class TicketUseCasesImplementation(
                 } else {
                     ticketRepository.reprove(uuid, user.uuid!!, reprove.description!!)
                 }
+
                 Situation.excluded -> ticketRepository.exclude(uuid, user.uuid!!, reprove.description!!)
                 Situation.approved -> ticketRepository.approval(uuid, user.uuid!!)
 
@@ -137,7 +138,7 @@ class TicketUseCasesImplementation(
     override fun editTicket(uuid: UUID, userName: String, ticket: Ticket): TicketResponse {
         try {
             val user = userRepository.get(userName)
-            if(user!!.isManager()){
+            if (user!!.isManager()) {
                 return TicketResponse(error = TICKET_DOESNT_MANAGER_UPDATE)
             }
             val bdTicket = ticketRepository.findByUUID(uuid)
@@ -147,7 +148,9 @@ class TicketUseCasesImplementation(
             if (user.uuid != bdTicket.user!!.uuid) {
                 return TicketResponse(error = TICKET_USER_DIFFERENT)
             }
-
+            if (bdTicket.situation!!.code == Situation.approved){
+                return TicketResponse(error = SITUATION_NOT_ACCEPTED)
+            }
             val response = validadesTicket(ticket)
             if (response != null) {
                 return response

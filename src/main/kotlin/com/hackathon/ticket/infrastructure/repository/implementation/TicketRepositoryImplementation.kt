@@ -216,12 +216,14 @@ class TicketRepositoryImplementation : TicketRepository {
 
     override fun updateTicket(ticket: Ticket) {
         transaction {
+            val situationUUID = getSituationByCode(pendentApproval)!!.uuid!!
             TicketDatabase
                 .update({TicketDatabase.uuid eq ticket.uuid!!}){
                     it[TicketDatabase.reasonUUID] = ticket.reason!!.uuid!!
                     it[TicketDatabase.title] = ticket.title!!
                     it[TicketDatabase.priorityUUID] = ticket.priority!!.uuid!!
                     it[TicketDatabase.contact] = ticket.contact!!
+                    it[TicketDatabase.situationUUID] = situationUUID
                 }
         }
     }
