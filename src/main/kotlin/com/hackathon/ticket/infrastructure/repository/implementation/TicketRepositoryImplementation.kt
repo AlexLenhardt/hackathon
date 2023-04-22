@@ -260,6 +260,7 @@ fun ColumnSet.toSliceTicket(): FieldSet {
     columns.add(PriorityDatabase.description)
     columns.add(UserDatabase.uuid)
     columns.add(UserDatabase.name)
+    columns.add(UserDatabase.type)
     columns.add(SituationDatabase.uuid)
     columns.add(SituationDatabase.code)
     columns.add(SituationDatabase.description)
@@ -276,7 +277,8 @@ fun ColumnSet.toSliceTicket(): FieldSet {
 fun ResultRow.toUser(): User {
     return User(
         uuid = this[UserDatabase.uuid],
-        name = this[UserDatabase.name]
+        name = this[UserDatabase.name],
+        type = this[UserDatabase.type]
     )
 }
 
