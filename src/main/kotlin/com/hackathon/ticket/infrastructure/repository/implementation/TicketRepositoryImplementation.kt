@@ -1,6 +1,7 @@
 package com.hackathon.ticket.infrastructure.repository.implementation
 
 import com.hackathon.ticket.domain.entities.*
+import com.hackathon.ticket.domain.entities.Situation.Companion.approved
 import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
 import com.hackathon.ticket.domain.repository.TicketRepository
 import com.hackathon.ticket.infrastructure.repository.database.*
@@ -16,30 +17,15 @@ import java.util.*
 class TicketRepositoryImplementation : TicketRepository {
     override fun listAllTicket(userUUID: UUID): List<Ticket> {
         return transaction {
+            addLogger(StdOutSqlLogger)
             TicketDatabase
                 .innerJoin(SituationDatabase, { SituationDatabase.uuid }, { TicketDatabase.situationUUID })
                 .innerJoin(ReasonDatabase, { ReasonDatabase.uuid }, { TicketDatabase.reasonUUID })
                 .innerJoin(PriorityDatabase, { PriorityDatabase.uuid }, { TicketDatabase.priorityUUID })
                 .innerJoin(UserDatabase, { UserDatabase.uuid }, { TicketDatabase.userUUID })
-                .slice(
-                    TicketDatabase.uuid,
-                    TicketDatabase.number,
-                    ReasonDatabase.uuid,
-                    ReasonDatabase.description,
-                    TicketDatabase.title,
-                    PriorityDatabase.uuid,
-                    PriorityDatabase.description,
-                    UserDatabase.uuid,
-                    UserDatabase.name,
-                    SituationDatabase.uuid,
-                    SituationDatabase.description,
-                    TicketDatabase.modified_at,
-                    TicketDatabase.create_at,
-                    TicketDatabase.contact
-                )
+                .toSliceTicket()
                 .select(
-                    (TicketDatabase.userUUID eq userUUID) and
-                            (SituationDatabase.code eq pendentApproval)
+                    TicketDatabase.userUUID eq userUUID
                 )
                 .map {
                     Ticket(
@@ -70,12 +56,15 @@ class TicketRepositoryImplementation : TicketRepository {
                     TicketDatabase.number,
                     ReasonDatabase.uuid,
                     ReasonDatabase.description,
+                    ReasonDatabase.isInfrastructure,
+                    ReasonDatabase.needsApproval,
                     TicketDatabase.title,
                     PriorityDatabase.uuid,
                     PriorityDatabase.description,
                     UserDatabase.uuid,
                     UserDatabase.name,
                     SituationDatabase.uuid,
+                    SituationDatabase.code,
                     SituationDatabase.description,
                     TicketDatabase.modified_at,
                     TicketDatabase.create_at,
@@ -88,23 +77,11 @@ class TicketRepositoryImplementation : TicketRepository {
                     Ticket(
                         uuid = it[TicketDatabase.uuid],
                         number = it[TicketDatabase.number],
-                        reason = Reason(
-                            uuid = it[ReasonDatabase.uuid],
-                            description = it[ReasonDatabase.description]
-                        ),
+                        reason = it.toReason(),
                         title = it[TicketDatabase.title],
-                        priority = Priority(
-                            uuid = it[PriorityDatabase.uuid],
-                            description = it[PriorityDatabase.description]
-                        ),
-                        user = User(
-                            uuid = it[UserDatabase.uuid],
-                            name = it[UserDatabase.name]
-                        ),
-                        situation = Situation(
-                            uuid = it[SituationDatabase.uuid],
-                            description = it[SituationDatabase.description]
-                        ),
+                        priority = it.toPriority(),
+                        user = it.toUser(),
+                        situation = it.toSituation(),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
                         contact = it[TicketDatabase.contact],
@@ -129,7 +106,7 @@ class TicketRepositoryImplementation : TicketRepository {
                 .select(
                     DescriptionTicketDatabase.ticketUUID eq ticketUUID
                 )
-                .map{
+                .map {
                     DescriptionTicket(
                         uuid = it[DescriptionTicketDatabase.uuid],
                         user = User(
@@ -150,22 +127,7 @@ class TicketRepositoryImplementation : TicketRepository {
                 .innerJoin(ReasonDatabase, { ReasonDatabase.uuid }, { TicketDatabase.reasonUUID })
                 .innerJoin(PriorityDatabase, { PriorityDatabase.uuid }, { TicketDatabase.priorityUUID })
                 .innerJoin(UserDatabase, { UserDatabase.uuid }, { TicketDatabase.userUUID })
-                .slice(
-                    TicketDatabase.uuid,
-                    TicketDatabase.number,
-                    ReasonDatabase.uuid,
-                    ReasonDatabase.description,
-                    TicketDatabase.title,
-                    PriorityDatabase.uuid,
-                    PriorityDatabase.description,
-                    UserDatabase.uuid,
-                    UserDatabase.name,
-                    SituationDatabase.uuid,
-                    SituationDatabase.description,
-                    TicketDatabase.modified_at,
-                    TicketDatabase.create_at,
-                    TicketDatabase.contact
-                )
+                .toSliceTicket()
                 .select(
                     ReasonDatabase.needsApproval eq true
                 )
@@ -173,23 +135,11 @@ class TicketRepositoryImplementation : TicketRepository {
                     Ticket(
                         uuid = it[TicketDatabase.uuid],
                         number = it[TicketDatabase.number],
-                        reason = Reason(
-                            uuid = it[ReasonDatabase.uuid],
-                            description = it[ReasonDatabase.description],
-                        ),
+                        reason = it.toReason(),
                         title = it[TicketDatabase.title],
-                        priority = Priority(
-                            uuid = it[PriorityDatabase.uuid],
-                            description = it[PriorityDatabase.description]
-                        ),
-                        user = User(
-                            uuid = it[UserDatabase.uuid],
-                            name = it[UserDatabase.name]
-                        ),
-                        situation = Situation(
-                            uuid = it[SituationDatabase.uuid],
-                            description = it[SituationDatabase.description]
-                        ),
+                        priority = it.toPriority(),
+                        user = it.toUser(),
+                        situation = it.toSituation(),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
                         contact = it[TicketDatabase.contact]
@@ -214,6 +164,38 @@ class TicketRepositoryImplementation : TicketRepository {
         }
     }
 
+    override fun approval(ticketUUID: UUID, userUUID: UUID) {
+        val situationUUID = getSituationByCode(approved)!!.uuid!!
+        transaction {
+            TicketDatabase
+                .update({
+                    TicketDatabase.uuid eq ticketUUID
+                }) {
+                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                }
+
+            SituationTicketDatabase
+                .insert {
+                    it[SituationTicketDatabase.userUUID] = userUUID
+                    it[SituationTicketDatabase.ticketUUID] = ticketUUID
+                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                }
+        }
+    }
+
+    private fun getSituationByCode(situationCode: Int): Situation? {
+        return transaction {
+            SituationDatabase
+                .select {
+                    SituationDatabase.code eq situationCode
+                }
+                .map {
+                    it.toSituation()
+                }
+                .firstOrNull()
+        }
+    }
+
 }
 
 fun ResultRow.toSituation(): Situation {
@@ -221,6 +203,32 @@ fun ResultRow.toSituation(): Situation {
         uuid = this[SituationDatabase.uuid],
         code = this[SituationDatabase.code],
         description = this[SituationDatabase.description]
+    )
+}
+
+fun ColumnSet.toSliceTicket(): FieldSet {
+    val columns: MutableList<Expression<*>> = mutableListOf()
+    columns.add(TicketDatabase.uuid)
+    columns.add(TicketDatabase.number)
+    columns.add(ReasonDatabase.uuid)
+    columns.add(ReasonDatabase.isInfrastructure)
+    columns.add(ReasonDatabase.needsApproval)
+    columns.add(ReasonDatabase.description)
+    columns.add(TicketDatabase.title)
+    columns.add(PriorityDatabase.uuid)
+    columns.add(PriorityDatabase.description)
+    columns.add(UserDatabase.uuid)
+    columns.add(UserDatabase.name)
+    columns.add(SituationDatabase.uuid)
+    columns.add(SituationDatabase.code)
+    columns.add(SituationDatabase.description)
+    columns.add(TicketDatabase.modified_at)
+    columns.add(TicketDatabase.create_at)
+    columns.add(TicketDatabase.contact)
+
+    return Slice(
+        this,
+        columns.toList()
     )
 }
 
@@ -242,6 +250,7 @@ fun ResultRow.toReason(): Reason {
     return Reason(
         uuid = this[ReasonDatabase.uuid],
         description = this[ReasonDatabase.description],
-
+        isInfrastructure = this[ReasonDatabase.isInfrastructure],
+        needsApproval = this[ReasonDatabase.needsApproval]
     )
 }

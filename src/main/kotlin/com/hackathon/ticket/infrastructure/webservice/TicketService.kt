@@ -30,7 +30,15 @@ class TicketService(
     }
 
     @GetMapping("/{uuid}")
-    fun listTicket(@PathVariable(value = "uuid") uuid: UUID): Ticket {
+    fun listTicket(@PathVariable(value = "uuid") uuid: UUID): TicketResponse {
         return ticketUseCases.getTicket(uuid)
+    }
+
+    @PostMapping("/approval/{uuid}")
+    fun approvalTicket(
+        @PathVariable("uuid") uuid: UUID,
+        @RequestHeader("Authorization") user: String,
+        ): TicketResponse{
+        return ticketUseCases.approval(uuid, user)
     }
 }

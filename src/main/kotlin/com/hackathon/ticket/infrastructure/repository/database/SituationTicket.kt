@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.date
 
 object SituationTicketDatabase : Table("situation_ticket")  {
-    var uuid = uuid("uuid").uniqueIndex()
     var ticketUUID = reference("uuid_ticket", TicketDatabase.uuid)
     var situationUUID = reference("uuid_situation", SituationDatabase.uuid)
     var userUUID = reference("uuid_user", UserDatabase.uuid)

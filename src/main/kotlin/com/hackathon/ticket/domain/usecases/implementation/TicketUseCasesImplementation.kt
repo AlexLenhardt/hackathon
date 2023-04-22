@@ -1,5 +1,6 @@
 package com.hackathon.ticket.domain.usecases.implementation
 
+import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
 import com.hackathon.ticket.domain.entities.Ticket
 import com.hackathon.ticket.domain.exceptions.TICKET_DATABASE_ERROR
 import com.hackathon.ticket.domain.exceptions.TICKET_NOT_FOUND
@@ -10,18 +11,17 @@ import com.hackathon.ticket.domain.usecases.response.ListTicketResponse
 import com.hackathon.user.domain.entities.User
 import com.hackathon.user.domain.exceptions.USER_NOT_ALLOWED
 import com.hackathon.ticket.domain.usecases.response.TicketResponse
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.stereotype.Repository
+import com.hackathon.user.domain.repository.UserRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
 @Service
 class TicketUseCasesImplementation(
-    val ticketRepository: TicketRepository
+    val ticketRepository: TicketRepository,
+    val userRepository: UserRepository
 ) : TicketUseCases {
     override fun getAll(user: User): ListTicketResponse {
         return try {
-
             if (user.isColaborator()) {
                 ListTicketResponse(
                     tickets = ticketRepository.listAllTicket(user.uuid!!)
@@ -31,9 +31,11 @@ class TicketUseCasesImplementation(
                     tickets = ticketRepository.listAllTicketApproval(user.uuid!!)
                 )
             } else {
+                println("else")
                 ListTicketResponse(error = USER_NOT_ALLOWED)
             }
         } catch (e: Exception) {
+            println(e)
             ListTicketResponse(error = TICKET_DATABASE_ERROR)
         }
     }
@@ -41,7 +43,6 @@ class TicketUseCasesImplementation(
     override fun getTicket(uuid: UUID): TicketResponse {
         return try {
             val ticket = ticketRepository.findByUUID(uuid) ?: return TicketResponse(error = TICKET_NOT_FOUND);
-
             TicketResponse(ticket)
         } catch (e: Exception) {
             TicketResponse(error = TICKET_DATABASE_ERROR)
@@ -73,5 +74,27 @@ class TicketUseCasesImplementation(
         ticketRepository.addTicket(ticket!!)
 
         TODO("Not yet implemented")
+    }
+
+    override fun approval(uuid: UUID, userName: String): TicketResponse {
+        try {
+            val user = userRepository.get(userName)
+            if (!user!!.isManager()){
+                return TicketResponse(error = USER_NOT_ALLOWED)
+            }
+
+            val ticket = ticketRepository.findByUUID(uuid)
+            println(ticket!!.situation!!.code)
+            println(pendentApproval)
+            if (ticket!!.situation!!.code != pendentApproval) {
+                return TicketResponse(error = TICKET_DOESNT_NEED_APPROVAL)
+            }
+
+            ticketRepository.approval(uuid, user.uuid!!)
+        } catch (e: Exception) {
+            return TicketResponse(error = TICKET_DATABASE_ERROR)
+        }
+
+        return TicketResponse()
     }
 }

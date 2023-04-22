@@ -11,5 +11,6 @@ class Situation (
         const val approved: Int = 1
         const val reproved: Int = 2
         const val pendentApproval: Int = 3
+        const val excluded: Int = 4
     }
 }
