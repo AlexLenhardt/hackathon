@@ -17,7 +17,7 @@ import java.util.UUID
 
 @Service
 class TicketUseCasesImplementation(
-        val ticketRepository: TicketRepository
+    val ticketRepository: TicketRepository
 ) : TicketUseCases {
     override fun getAll(user: User): ListTicketResponse {
         return try {
@@ -38,32 +38,35 @@ class TicketUseCasesImplementation(
         }
     }
 
-    override fun getTicket(uuid: UUID): Ticket {
-        val ticket = ticketRepository.findByUUID(uuid);
-        if (ticket == null) {
-            TICKET_NOT_FOUND
+    override fun getTicket(uuid: UUID): TicketResponse {
+        return try {
+            val ticket = ticketRepository.findByUUID(uuid) ?: return TicketResponse(error = TICKET_NOT_FOUND);
+
+            TicketResponse(ticket)
+        } catch (e: Exception) {
+            TicketResponse(error = TICKET_DATABASE_ERROR)
         }
-        return ticket!!
+
     }
 
     override fun addTicket(ticket: Ticket?): TicketResponse {
 
-        if(ticket == null){
-            TICKET_NOT_FOUND
-        }else{
-            if(ticket.title == null){
+        if (ticket == null) {
+            TicketResponse(error = TICKET_NOT_FOUND)
+        } else {
+            if (ticket.title == null) {
                 TITLE_NOT_FOUND
             }
-            if(ticket.priority == null){
+            if (ticket.priority == null) {
                 PRIORITY_NOT_FOUND
             }
-            if(ticket.user == null){
+            if (ticket.user == null) {
                 USER_NOT_FOUND
             }
-            if(ticket.contact == null){
+            if (ticket.contact == null) {
                 CONTACT_NOT_FOUND
             }
-            if (ticket.reason == null){
+            if (ticket.reason == null) {
                 REASON_NOT_FOUND
             }
         }

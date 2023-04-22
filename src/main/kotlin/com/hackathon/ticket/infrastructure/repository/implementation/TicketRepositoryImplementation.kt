@@ -107,7 +107,8 @@ class TicketRepositoryImplementation : TicketRepository {
                         ),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
-                        contact = it[TicketDatabase.contact]
+                        contact = it[TicketDatabase.contact],
+                        descriptions = getDescriptionByTicket(it[TicketDatabase.uuid])
                     )
                 }
                 .firstOrNull()
@@ -191,8 +192,7 @@ class TicketRepositoryImplementation : TicketRepository {
                         ),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
-                        contact = it[TicketDatabase.contact],
-                        descriptions = getDescriptionByTicket(it[TicketDatabase.uuid])
+                        contact = it[TicketDatabase.contact]
                     )
                 }
         }
@@ -242,5 +242,6 @@ fun ResultRow.toReason(): Reason {
     return Reason(
         uuid = this[ReasonDatabase.uuid],
         description = this[ReasonDatabase.description],
+
     )
 }
