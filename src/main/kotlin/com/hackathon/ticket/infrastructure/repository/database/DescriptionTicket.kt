@@ -8,7 +8,8 @@ import org.jetbrains.exposed.sql.javatime.datetime
 object DescriptionTicketDatabase : Table("description_ticket") {
     var uuid = uuid("uuid").uniqueIndex()
     var ticketUUID = reference("uuid_ticket", TicketDatabase.uuid)
+    var situationUUID = reference("uuid_situation", SituationDatabase.uuid)
     var userUUID = reference("uuid_user", UserDatabase.uuid)
     var create_at = datetime("create_at")
-    var description = varchar("description", 200)
+    var description = text("description")
 }

@@ -4,12 +4,13 @@ import com.hackathon.user.domain.entities.User
 import java.time.LocalDateTime
 import java.util.UUID
 
-class Ticket(
+data class Ticket(
     var uuid : UUID? = null,
     var number: Int? = null,
     var reason: Reason? = null,
+    var subject: Subject? = null,
     var title: String? = null,
-    var priority: Priority,
+    var priority: Priority? = null,
     var user: User? = null,
     var situation: Situation? = null,
     var modified_at: LocalDateTime? = null,

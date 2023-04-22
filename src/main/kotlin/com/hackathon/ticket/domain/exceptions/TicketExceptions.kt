@@ -16,6 +16,14 @@ val REASON_NOT_FOUND = TicketExceptions("REASON_NOT_FOUND", "Assunto deve ser in
 
 val TICKET_DATABASE_ERROR = TicketExceptions("TICKET_DATABASE_ERROR", "An error occurred on ticket database.")
 
+val SITUATION_NOT_ACCEPTED = TicketExceptions("SITUATION_NOT_ACCEPTED", "Situation is not accepted")
+
+val TICKET_DOESNT_MANAGER_UPDATE = TicketExceptions("TICKET_DOESNT_MANAGER_UPDATE", "Manager cannot update ticket")
+
+val DESCRIPTION_CANNOT_BE_EMPTY = TicketExceptions("DESCRIPTION_CANNOT_BE_EMPTY", "Description cannot be empty.")
+
+val TICKET_DOESNT_NEED_APPROVAL = TicketExceptions("TICKET_DOESNT_NEED_APPROVAL", "This ticket doesn't need to be approval")
+
 class TicketExceptions(
         code: String,
         description: String
