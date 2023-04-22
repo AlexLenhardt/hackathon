@@ -6,6 +6,7 @@ import com.hackathon.ticket.domain.repository.ReasonRepository
 import com.hackathon.ticket.infrastructure.repository.database.ReasonDatabase
 import com.hackathon.ticket.infrastructure.repository.database.ReasonSubjectDatabase
 import com.hackathon.ticket.infrastructure.repository.database.SubjectDatabase
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -15,10 +16,14 @@ import java.util.*
 
 @Repository
 class ReasonRepositoryImplementation : ReasonRepository {
-    override fun list(): List<Reason>? {
+    override fun list(isInfrastructure: Boolean?): List<Reason>? {
         return transaction {
             ReasonDatabase
-                .selectAll()
+                .select {
+                    isInfrastructure?.let {
+                        ReasonDatabase.isInfrastructure.eq(it)
+                    } ?: Op.TRUE
+                }
                 .map {
                     Reason(
                         uuid = it[ReasonDatabase.uuid],

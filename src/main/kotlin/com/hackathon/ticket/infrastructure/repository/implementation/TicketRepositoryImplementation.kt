@@ -14,14 +14,9 @@ import com.hackathon.user.domain.entities.User
 import com.hackathon.user.infrastructure.repository.database.UserDatabase
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
 import org.springframework.stereotype.Repository
-import org.springframework.stereotype.Service
+import java.util.*
 
 @Repository
 class TicketRepositoryImplementation : TicketRepository {
