@@ -43,7 +43,6 @@ class TicketUseCasesImplementation(
         if (ticket == null) {
             TICKET_NOT_FOUND
         }
-
         return ticket!!
     }
 
