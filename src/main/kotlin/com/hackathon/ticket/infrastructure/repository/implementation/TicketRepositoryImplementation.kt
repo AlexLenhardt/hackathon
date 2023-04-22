@@ -51,25 +51,7 @@ class TicketRepositoryImplementation : TicketRepository {
                 .innerJoin(ReasonDatabase, { ReasonDatabase.uuid }, { TicketDatabase.reasonUUID })
                 .innerJoin(PriorityDatabase, { PriorityDatabase.uuid }, { TicketDatabase.priorityUUID })
                 .innerJoin(UserDatabase, { UserDatabase.uuid }, { TicketDatabase.userUUID })
-                .slice(
-                    TicketDatabase.uuid,
-                    TicketDatabase.number,
-                    ReasonDatabase.uuid,
-                    ReasonDatabase.description,
-                    ReasonDatabase.isInfrastructure,
-                    ReasonDatabase.needsApproval,
-                    TicketDatabase.title,
-                    PriorityDatabase.uuid,
-                    PriorityDatabase.description,
-                    UserDatabase.uuid,
-                    UserDatabase.name,
-                    SituationDatabase.uuid,
-                    SituationDatabase.code,
-                    SituationDatabase.description,
-                    TicketDatabase.modified_at,
-                    TicketDatabase.create_at,
-                    TicketDatabase.contact
-                )
+                .toSliceTicket()
                 .select(
                     TicketDatabase.uuid eq uuid
                 )
@@ -129,7 +111,8 @@ class TicketRepositoryImplementation : TicketRepository {
                 .innerJoin(UserDatabase, { UserDatabase.uuid }, { TicketDatabase.userUUID })
                 .toSliceTicket()
                 .select(
-                    ReasonDatabase.needsApproval eq true
+                    (ReasonDatabase.needsApproval eq true) and
+                            (SituationDatabase.code eq pendentApproval)
                 )
                 .map {
                     Ticket(
