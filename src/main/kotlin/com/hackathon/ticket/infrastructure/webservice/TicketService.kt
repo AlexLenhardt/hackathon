@@ -30,7 +30,7 @@ class TicketService(
     }
 
     @GetMapping("/{uuid}")
-    fun listTicket(@PathVariable(value = "uuid") uuid: UUID): Ticket {
+    fun listTicket(@PathVariable(value = "uuid") uuid: UUID): TicketResponse {
         return ticketUseCases.getTicket(uuid)
     }
 

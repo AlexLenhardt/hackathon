@@ -10,7 +10,7 @@ interface TicketUseCases {
 
     fun getAll(user: User): ListTicketResponse
 
-    fun getTicket(uuid: UUID): Ticket
+    fun getTicket(uuid: UUID): TicketResponse
 
     fun addTicket(ticket: Ticket?): TicketResponse
     fun approval(uuid: UUID, user: String): TicketResponse

@@ -39,12 +39,13 @@ class TicketUseCasesImplementation(
         }
     }
 
-    override fun getTicket(uuid: UUID): Ticket {
-        val ticket = ticketRepository.findByUUID(uuid);
-        if (ticket == null) {
-            TICKET_NOT_FOUND
+    override fun getTicket(uuid: UUID): TicketResponse {
+        return try {
+            val ticket = ticketRepository.findByUUID(uuid) ?: return TicketResponse(error = TICKET_NOT_FOUND);
+            TicketResponse(ticket)
+        }catch (e : Exception){
+            TicketResponse(error = TICKET_DATABASE_ERROR)
         }
-        return ticket!!
     }
 
     override fun addTicket(ticket: Ticket?): TicketResponse {

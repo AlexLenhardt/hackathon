@@ -71,6 +71,8 @@ class TicketRepositoryImplementation : TicketRepository {
                     TicketDatabase.number,
                     ReasonDatabase.uuid,
                     ReasonDatabase.description,
+                    ReasonDatabase.isInfrastructure,
+                    ReasonDatabase.needsApproval,
                     TicketDatabase.title,
                     PriorityDatabase.uuid,
                     PriorityDatabase.description,
@@ -97,7 +99,8 @@ class TicketRepositoryImplementation : TicketRepository {
                         situation = it.toSituation(),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
-                        contact = it[TicketDatabase.contact]
+                        contact = it[TicketDatabase.contact],
+                        descriptions = getDescriptionByTicket(it[TicketDatabase.uuid])
                     )
                 }
                 .firstOrNull()
@@ -264,5 +267,7 @@ fun ResultRow.toReason(): Reason {
     return Reason(
         uuid = this[ReasonDatabase.uuid],
         description = this[ReasonDatabase.description],
+        isInfrastructure = this[ReasonDatabase.isInfrastructure],
+        needsApproval = this[ReasonDatabase.needsApproval]
     )
 }
