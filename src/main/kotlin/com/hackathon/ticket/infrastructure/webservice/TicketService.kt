@@ -41,4 +41,13 @@ class TicketService(
         ): TicketResponse{
         return ticketUseCases.approval(uuid, user)
     }
+
+    @PutMapping("/{uuid}")
+    fun editTicket(
+        @PathVariable("uuid") uuid: UUID,
+        @RequestHeader("Authorization") user: String,
+        @RequestBody ticket: Ticket?
+    ) : TicketResponse{
+        return ticketUseCases.editTicket(uuid, user, ticket)
+    }
 }

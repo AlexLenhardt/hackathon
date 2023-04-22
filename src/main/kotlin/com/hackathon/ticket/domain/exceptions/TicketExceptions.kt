@@ -18,6 +18,8 @@ val TICKET_DATABASE_ERROR = TicketExceptions("TICKET_DATABASE_ERROR", "An error 
 
 val TICKET_DOESNT_NEED_APPROVAL = TicketExceptions("TICKET_DOESNT_NEED_APPROVAL", "This ticket doesn't need to be approval")
 
+val TICKET_DOESNT_MANAGER_UPDATE = TicketExceptions("TICKET_DOESNT_MANAGER_UPDATE", "Manager cannot update ticket")
+
 class TicketExceptions(
         code: String,
         description: String

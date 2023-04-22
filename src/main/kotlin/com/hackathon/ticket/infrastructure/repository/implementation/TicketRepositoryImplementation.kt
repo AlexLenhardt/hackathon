@@ -17,7 +17,6 @@ import java.util.*
 class TicketRepositoryImplementation : TicketRepository {
     override fun listAllTicket(userUUID: UUID): List<Ticket> {
         return transaction {
-            addLogger(StdOutSqlLogger)
             TicketDatabase
                 .innerJoin(SituationDatabase, { SituationDatabase.uuid }, { TicketDatabase.situationUUID })
                 .innerJoin(ReasonDatabase, { ReasonDatabase.uuid }, { TicketDatabase.reasonUUID })

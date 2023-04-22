@@ -97,4 +97,23 @@ class TicketUseCasesImplementation(
 
         return TicketResponse()
     }
+
+    override fun editTicket(uuid: UUID, userName: String, ticket: Ticket?): TicketResponse {
+        try {
+            val user = userRepository.get(userName)
+            if(user!!.isManager()){
+                return TicketResponse(error = TICKET_DOESNT_MANAGER_UPDATE)
+            }
+            val ticket = ticketRepository.findByUUID(uuid)
+            if(ticket == null){
+                return TicketResponse(error = TICKET_NOT_FOUND)
+            }else{
+
+            }
+        }catch (e : Exception){
+            return TicketResponse(error = TICKET_DATABASE_ERROR)
+        }
+
+        return TicketResponse()
+    }
 }

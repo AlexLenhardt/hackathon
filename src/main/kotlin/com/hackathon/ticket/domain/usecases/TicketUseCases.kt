@@ -9,9 +9,8 @@ import java.util.*
 interface TicketUseCases {
 
     fun getAll(user: User): ListTicketResponse
-
     fun getTicket(uuid: UUID): TicketResponse
-
     fun addTicket(ticket: Ticket?): TicketResponse
     fun approval(uuid: UUID, user: String): TicketResponse
+    fun editTicket(uuid: UUID, userName: String, ticket: Ticket?) : TicketResponse
 }
