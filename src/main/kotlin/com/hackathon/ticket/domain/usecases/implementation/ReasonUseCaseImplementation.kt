@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service
 class ReasonUseCaseImplementation(
     var reasonRepository: ReasonRepository,
 ) : ReasonUseCase {
-    override fun list(): ListReasonResponse {
+    override fun list(isInfrastructure: Boolean?): ListReasonResponse {
         return try {
-            ListReasonResponse(reasons = reasonRepository.list())
+            ListReasonResponse(reasons = reasonRepository.list(isInfrastructure))
         }catch (e: Exception){
             return ListReasonResponse(error = REASON_DATABASE_ERROR)
         }
