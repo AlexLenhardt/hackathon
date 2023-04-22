@@ -1,5 +1,7 @@
 package com.hackathon.ticket.domain.usecases.implementation
 
+import com.hackathon.ticket.domain.entities.Reprove
+import com.hackathon.ticket.domain.entities.Situation
 import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
 import com.hackathon.ticket.domain.entities.Ticket
 import com.hackathon.ticket.domain.exceptions.TICKET_DATABASE_ERROR
@@ -11,6 +13,7 @@ import com.hackathon.ticket.domain.usecases.response.ListTicketResponse
 import com.hackathon.user.domain.entities.User
 import com.hackathon.user.domain.exceptions.USER_NOT_ALLOWED
 import com.hackathon.ticket.domain.usecases.response.TicketResponse
+import com.hackathon.ticket.infrastructure.repository.database.DescriptionTicketDatabase
 import com.hackathon.user.domain.repository.UserRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -78,31 +81,63 @@ class TicketUseCasesImplementation(
     }
 
     override fun approval(uuid: UUID, userName: String): TicketResponse {
-        try {
+        return try {
+            val user = userRepository.get(userName)
+            if (!user!!.isManager()){
+                return TicketResponse(error = USER_NOT_ALLOWED)
+            }
+
+            val ticket = ticketRepository.findByUUID(uuid)
+            if (ticket!!.situation!!.code != pendentApproval) {
+                return TicketResponse(error = TICKET_DOESNT_NEED_APPROVAL)
+            }
+
+            ticketRepository.approval(uuid, user.uuid!!)
+
+            TicketResponse()
+        } catch (e: Exception) {
+            return TicketResponse(error = TICKET_DATABASE_ERROR)
+        }
+    }
+
+    override fun reprove(uuid: UUID, userName: String, reprove: Reprove?): TicketResponse {
+        return try {
             val user = userRepository.get(userName)
             if (!user!!.isManager()) {
                 return TicketResponse(error = USER_NOT_ALLOWED)
             }
 
             val ticket = ticketRepository.findByUUID(uuid)
-            println(ticket!!.situation!!.code)
-            println(pendentApproval)
             if (ticket!!.situation!!.code != pendentApproval) {
                 return TicketResponse(error = TICKET_DOESNT_NEED_APPROVAL)
             }
 
-            ticketRepository.approval(uuid, user.uuid!!)
+            if (reprove == null) {
+                return TicketResponse(error = SITUATION_NOT_ACCEPTED)
+            }
+
+            when (reprove.situation!!.code) {
+                Situation.reproved -> if (reprove.description.isNullOrBlank()) {
+                    return TicketResponse(error = DESCRIPTION_CANNOT_BE_EMPTY)
+                } else {
+                    ticketRepository.reprove(uuid, user.uuid!!, reprove.description!!)
+                }
+                Situation.excluded -> ticketRepository.exclude(uuid, user.uuid!!, reprove.description!!)
+                Situation.approved -> ticketRepository.approval(uuid, user.uuid!!)
+
+                else -> return TicketResponse(error = SITUATION_NOT_ACCEPTED)
+            }
+
+            TicketResponse()
         } catch (e: Exception) {
             return TicketResponse(error = TICKET_DATABASE_ERROR)
         }
-
-        return TicketResponse()
     }
 
     override fun editTicket(uuid: UUID, userName: String, ticket: Ticket): TicketResponse {
         try {
             val user = userRepository.get(userName)
-            if (user!!.isManager()) {
+            if(user!!.isManager()){
                 return TicketResponse(error = TICKET_DOESNT_MANAGER_UPDATE)
             }
             val bdTicket = ticketRepository.findByUUID(uuid)
@@ -112,11 +147,6 @@ class TicketUseCasesImplementation(
             if (user.uuid != bdTicket.user!!.uuid) {
                 return TicketResponse(error = TICKET_USER_DIFFERENT)
             }
-
-            println(ticket)
-            println(ticket.title)
-            println(ticket.contact)
-            println(ticket.reason?.uuid)
 
             val response = validadesTicket(ticket)
             if (response != null) {

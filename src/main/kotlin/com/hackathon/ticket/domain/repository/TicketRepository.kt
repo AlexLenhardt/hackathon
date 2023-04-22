@@ -16,4 +16,8 @@ interface TicketRepository {
     fun approval(ticketUUID: UUID, userUUID: UUID)
 
     fun updateTicket(ticket: Ticket)
+
+    fun reprove(ticketUUID: UUID, userUUID: UUID, description: String)
+
+    fun exclude(ticketUUID: UUID, userUUID: UUID, description: String)
 }

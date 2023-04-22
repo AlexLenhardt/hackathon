@@ -1,6 +1,7 @@
 package com.hackathon.ticket.infrastructure.webservice
 
 import com.hackathon.example.domain.usecases.UserUseCase
+import com.hackathon.ticket.domain.entities.Reprove
 import com.hackathon.ticket.domain.entities.Ticket
 import com.hackathon.ticket.domain.usecases.TicketUseCases
 import com.hackathon.ticket.domain.usecases.response.ListTicketResponse
@@ -40,6 +41,15 @@ class TicketService(
         @RequestHeader("Authorization") user: String,
         ): TicketResponse{
         return ticketUseCases.approval(uuid, user)
+    }
+
+    @PostMapping("/reprove/{uuid}")
+    fun reproveTicket(
+        @PathVariable("uuid") uuid: UUID,
+        @RequestHeader("Authorization") user: String,
+        @RequestBody reprove: Reprove?
+        ): TicketResponse{
+        return ticketUseCases.reprove(uuid, user, reprove)
     }
 
     @PutMapping("/{uuid}")
