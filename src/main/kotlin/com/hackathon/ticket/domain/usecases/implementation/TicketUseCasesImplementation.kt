@@ -148,7 +148,7 @@ class TicketUseCasesImplementation(
             if (user.uuid != bdTicket.user!!.uuid) {
                 return TicketResponse(error = TICKET_USER_DIFFERENT)
             }
-            if (bdTicket.situation!!.code == Situation.approved){
+            if (bdTicket.situation!!.code == Situation.approved || bdTicket.situation!!.code == Situation.excluded){
                 return TicketResponse(error = SITUATION_NOT_ACCEPTED)
             }
             val response = validadesTicket(ticket)
