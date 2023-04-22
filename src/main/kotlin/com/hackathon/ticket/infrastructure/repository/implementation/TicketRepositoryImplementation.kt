@@ -1,6 +1,7 @@
 package com.hackathon.ticket.infrastructure.repository.implementation
 
 import com.hackathon.ticket.domain.entities.*
+import com.hackathon.ticket.domain.entities.Situation.Companion.approved
 import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
 import com.hackathon.ticket.domain.repository.TicketRepository
 import com.hackathon.ticket.infrastructure.repository.database.*
@@ -76,6 +77,7 @@ class TicketRepositoryImplementation : TicketRepository {
                     UserDatabase.uuid,
                     UserDatabase.name,
                     SituationDatabase.uuid,
+                    SituationDatabase.code,
                     SituationDatabase.description,
                     TicketDatabase.modified_at,
                     TicketDatabase.create_at,
@@ -88,23 +90,11 @@ class TicketRepositoryImplementation : TicketRepository {
                     Ticket(
                         uuid = it[TicketDatabase.uuid],
                         number = it[TicketDatabase.number],
-                        reason = Reason(
-                            uuid = it[ReasonDatabase.uuid],
-                            description = it[ReasonDatabase.description]
-                        ),
+                        reason = it.toReason(),
                         title = it[TicketDatabase.title],
-                        priority = Priority(
-                            uuid = it[PriorityDatabase.uuid],
-                            description = it[PriorityDatabase.description]
-                        ),
-                        user = User(
-                            uuid = it[UserDatabase.uuid],
-                            name = it[UserDatabase.name]
-                        ),
-                        situation = Situation(
-                            uuid = it[SituationDatabase.uuid],
-                            description = it[SituationDatabase.description]
-                        ),
+                        priority = it.toPriority(),
+                        user = it.toUser(),
+                        situation = it.toSituation(),
                         modified_at = it[TicketDatabase.modified_at],
                         create_at = it[TicketDatabase.create_at],
                         contact = it[TicketDatabase.contact]
@@ -128,7 +118,7 @@ class TicketRepositoryImplementation : TicketRepository {
                 .select(
                     DescriptionTicketDatabase.ticketUUID eq ticketUUID
                 )
-                .map{
+                .map {
                     DescriptionTicket(
                         uuid = it[DescriptionTicketDatabase.uuid],
                         user = User(
@@ -211,6 +201,38 @@ class TicketRepositoryImplementation : TicketRepository {
                 it[create_at] = ticket.create_at!!
                 it[contact] = ticket.contact!!
             }.resultedValues!!
+        }
+    }
+
+    override fun approval(ticketUUID: UUID, userUUID: UUID) {
+        val situationUUID = getSituationByCode(approved)!!.uuid!!
+        transaction {
+            TicketDatabase
+                .update({
+                    TicketDatabase.uuid eq ticketUUID
+                }) {
+                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                }
+
+            SituationTicketDatabase
+                .insert {
+                    it[SituationTicketDatabase.userUUID] = userUUID
+                    it[SituationTicketDatabase.ticketUUID] = ticketUUID
+                    it[SituationTicketDatabase.situationUUID] = situationUUID
+                }
+        }
+    }
+
+    private fun getSituationByCode(situationCode: Int): Situation? {
+        return transaction {
+            SituationDatabase
+                .select {
+                    SituationDatabase.code eq situationCode
+                }
+                .map {
+                    it.toSituation()
+                }
+                .firstOrNull()
         }
     }
 

@@ -12,4 +12,6 @@ interface TicketRepository {
     fun listAllTicketApproval(userUUID: UUID): List<Ticket>
 
     fun addTicket(ticket: Ticket)
+
+    fun approval(ticketUUID: UUID, userUUID: UUID)
 }
