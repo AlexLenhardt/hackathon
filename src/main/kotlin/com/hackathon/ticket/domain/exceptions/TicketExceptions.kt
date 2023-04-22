@@ -14,6 +14,8 @@ val USER_NOT_FOUND = TicketExceptions("USER_NOT_FOUND", "Usuário deve ser infor
 
 val REASON_NOT_FOUND = TicketExceptions("REASON_NOT_FOUND", "Assunto deve ser informado.")
 
+val TICKET_DATABASE_ERROR = TicketExceptions("TICKET_DATABASE_ERROR", "An error occurred on ticket database.")
+
 class TicketExceptions(
         code: String,
         description: String
