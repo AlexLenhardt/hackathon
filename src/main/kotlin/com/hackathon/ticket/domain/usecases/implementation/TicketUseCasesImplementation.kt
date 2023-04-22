@@ -1,6 +1,8 @@
 package com.hackathon.ticket.domain.usecases.implementation
 
 import com.hackathon.ticket.domain.entities.Ticket
+import com.hackathon.ticket.domain.exception.SITUATIONDENIED_DATABASE_ERROR
+import com.hackathon.ticket.domain.exception.SITUATION_DATABASE_ERROR
 import com.hackathon.ticket.domain.exceptions.*
 import com.hackathon.ticket.domain.repository.TicketRepository
 import com.hackathon.ticket.domain.usecases.TicketUseCases
@@ -21,25 +23,34 @@ class TicketUseCasesImplementation(
 
         if(ticket == null){
             TICKET_NOT_FOUND
-        }else{
-            if(ticket.title == null){
+        }else {
+            if (ticket.title == null) {
                 TITLE_NOT_FOUND
             }
-            if(ticket.priority == null){
+            if (ticket.priority == null) {
                 PRIORITY_NOT_FOUND
             }
-            if(ticket.user == null){
+            if (ticket.user == null) {
                 USER_NOT_FOUND
             }
-            if(ticket.contact == null){
+            if (ticket.contact == null) {
                 CONTACT_NOT_FOUND
             }
-            if (ticket.reason == null){
+            if (ticket.reason == null) {
                 REASON_NOT_FOUND
             }
+            if (ticket.reason.needsApproval!!) {
+                if (ticket.situation.code == 1){
+                    SITUATIONDENIED_DATABASE_ERROR  //***
+                    //devolução com justificativa
+                    //editar
+                }
+                if (ticket.situation.code == 3) {
+                    //Fluxo de aprovação
+                }
+            }
+            ticketRepository.addTicket(ticket!!) //Abre o chamado -- caso o status for aprovado
         }
-        ticketRepository.addTicket(ticket!!)
-
         TODO("Not yet implemented")
     }
 }

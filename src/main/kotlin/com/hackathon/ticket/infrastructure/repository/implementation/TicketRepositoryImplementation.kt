@@ -56,7 +56,6 @@ class TicketRepositoryImplementation : TicketRepository {
                 }
         }
     }
-
     override fun addTicket(ticket: Ticket) {
          transaction {
             TicketDatabase.insert {
