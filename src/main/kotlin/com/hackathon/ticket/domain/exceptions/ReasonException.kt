@@ -1,4 +1,4 @@
-package com.hackathon.ticket.domain.exception
+package com.hackathon.ticket.domain.exceptions
 
 import com.hackathon.shared.GenericError
 

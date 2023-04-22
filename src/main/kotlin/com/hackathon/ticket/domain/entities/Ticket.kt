@@ -9,7 +9,7 @@ class Ticket(
     var number: Int? = null,
     var reason: Reason? = null,
     var title: String? = null,
-    var priority: Priority,
+    var priority: Priority? = null,
     var user: User? = null,
     var situation: Situation? = null,
     var modified_at: LocalDateTime? = null,

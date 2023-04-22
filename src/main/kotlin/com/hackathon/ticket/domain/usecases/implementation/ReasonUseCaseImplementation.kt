@@ -1,6 +1,6 @@
 package com.hackathon.ticket.domain.usecases.implementation
 
-import com.hackathon.ticket.domain.exception.REASON_DATABASE_ERROR
+import com.hackathon.ticket.domain.exceptions.REASON_DATABASE_ERROR
 import com.hackathon.ticket.domain.repository.ReasonRepository
 import com.hackathon.ticket.domain.usecases.ReasonUseCase
 import com.hackathon.ticket.domain.usecases.response.ListReasonResponse

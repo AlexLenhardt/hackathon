@@ -178,6 +178,17 @@ class TicketRepositoryImplementation : TicketRepository {
         }
     }
 
+    override fun updateTicket(ticket: Ticket) {
+        transaction {
+            TicketDatabase
+                .update({TicketDatabase.uuid eq ticket.uuid!!}){
+                    it[TicketDatabase.reasonUUID] = ticket.reason!!.uuid!!
+                    it[TicketDatabase.title] = ticket.title!!
+                    it[TicketDatabase.priorityUUID] = ticket.priority!!.uuid!!
+                    it[TicketDatabase.contact] = ticket.contact!!
+                }
+        }
+    }
 }
 
 fun ResultRow.toSituation(): Situation {

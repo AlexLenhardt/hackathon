@@ -13,6 +13,7 @@ import com.hackathon.user.domain.exceptions.USER_NOT_ALLOWED
 import com.hackathon.ticket.domain.usecases.response.TicketResponse
 import com.hackathon.user.domain.repository.UserRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -79,7 +80,7 @@ class TicketUseCasesImplementation(
     override fun approval(uuid: UUID, userName: String): TicketResponse {
         try {
             val user = userRepository.get(userName)
-            if (!user!!.isManager()){
+            if (!user!!.isManager()) {
                 return TicketResponse(error = USER_NOT_ALLOWED)
             }
 
@@ -98,22 +99,50 @@ class TicketUseCasesImplementation(
         return TicketResponse()
     }
 
-    override fun editTicket(uuid: UUID, userName: String, ticket: Ticket?): TicketResponse {
+    override fun editTicket(uuid: UUID, userName: String, ticket: Ticket): TicketResponse {
         try {
             val user = userRepository.get(userName)
-            if(user!!.isManager()){
+            if (user!!.isManager()) {
                 return TicketResponse(error = TICKET_DOESNT_MANAGER_UPDATE)
             }
-            val ticket = ticketRepository.findByUUID(uuid)
-            if(ticket == null){
+            val bdTicket = ticketRepository.findByUUID(uuid)
+            if (bdTicket == null) {
                 return TicketResponse(error = TICKET_NOT_FOUND)
-            }else{
-
             }
-        }catch (e : Exception){
+            if (user.uuid != bdTicket.user!!.uuid) {
+                return TicketResponse(error = TICKET_USER_DIFFERENT)
+            }
+
+            println(ticket)
+            println(ticket.title)
+            println(ticket.contact)
+            println(ticket.reason?.uuid)
+
+            val response = validadesTicket(ticket)
+            if (response != null) {
+                return response
+            }
+            ticketRepository.updateTicket(ticket)
+            return TicketResponse()
+        } catch (e: Exception) {
             return TicketResponse(error = TICKET_DATABASE_ERROR)
         }
+    }
 
-        return TicketResponse()
+    private fun validadesTicket(ticket: Ticket): TicketResponse? {
+
+        if (ticket.reason?.uuid == null) {
+            return TicketResponse(error = REASON_NOT_FOUND)
+        }
+        if (ticket.title == null) {
+            return TicketResponse(error = TITLE_NOT_FOUND)
+        }
+        if (ticket.priority?.uuid == null) {
+            return TicketResponse(error = PRIORITY_NOT_FOUND)
+        }
+        if (ticket.contact == null) {
+            return TicketResponse(error = CONTACT_NOT_FOUND)
+        }
+        return null
     }
 }
