@@ -135,15 +135,23 @@ class TicketRepositoryImplementation : TicketRepository {
         transaction {
             TicketDatabase.insert {
                 it[uuid] = ticket.uuid!!
-                it[number] = ticket.number!!
                 it[reasonUUID] = ticket.reason!!.uuid!!
+                it[priorityUUID] = ticket.priority!!.uuid!!
                 it[userUUID] = ticket.user!!.uuid!!
                 it[situationUUID] = ticket.situation!!.uuid!!
                 it[title] = ticket.title!!
-                it[modified_at] = ticket.modified_at!!
-                it[create_at] = ticket.create_at!!
                 it[contact] = ticket.contact!!
+                it[subject] = ticket.subject!!.uuid!!
             }.resultedValues!!
+
+            DescriptionTicketDatabase
+                    .insert {
+                        it[uuid] = UUID.randomUUID()
+                        it[ticketUUID] = ticket.uuid!!
+                        it[userUUID] = ticket.user!!.uuid!!
+                        it[situationUUID] = ticket.situation!!.uuid!!
+                        it[description] = ticket.descriptions?.get(0)!!.description!!
+                    }
         }
     }
 
@@ -158,6 +166,20 @@ class TicketRepositoryImplementation : TicketRepository {
                 }
         }
     }
+
+    override fun getSituationByCode(situationCode: Int): Situation? {
+        return transaction {
+            SituationDatabase
+                .select {
+                    SituationDatabase.code eq situationCode
+                }
+                .map {
+                    it.toSituation()
+                }
+                .firstOrNull()
+        }
+    }
+
 
     override fun reprove(ticketUUID: UUID, userUUID: UUID, description: String) {
         val situationUUID = getSituationByCode(reproved)!!.uuid!!
@@ -201,32 +223,20 @@ class TicketRepositoryImplementation : TicketRepository {
         }
     }
 
-    private fun getSituationByCode(situationCode: Int): Situation? {
-        return transaction {
-            SituationDatabase
-                .select {
-                    SituationDatabase.code eq situationCode
-                }
-                .map {
-                    it.toSituation()
-                }
-                .firstOrNull()
-        }
-    }
-
     override fun updateTicket(ticket: Ticket) {
         transaction {
             val situationUUID = getSituationByCode(pendentApproval)!!.uuid!!
             TicketDatabase
                 .update({TicketDatabase.uuid eq ticket.uuid!!}){
-                    it[TicketDatabase.reasonUUID] = ticket.reason!!.uuid!!
-                    it[TicketDatabase.title] = ticket.title!!
-                    it[TicketDatabase.priorityUUID] = ticket.priority!!.uuid!!
-                    it[TicketDatabase.contact] = ticket.contact!!
+                    it[reasonUUID] = ticket.reason!!.uuid!!
+                    it[title] = ticket.title!!
+                    it[priorityUUID] = ticket.priority!!.uuid!!
+                    it[contact] = ticket.contact!!
                     it[TicketDatabase.situationUUID] = situationUUID
                 }
         }
     }
+
 }
 
 fun ResultRow.toSituation(): Situation {

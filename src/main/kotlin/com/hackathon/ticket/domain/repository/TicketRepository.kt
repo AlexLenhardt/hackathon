@@ -1,5 +1,6 @@
 package com.hackathon.ticket.domain.repository
 
+import com.hackathon.ticket.domain.entities.Situation
 import com.hackathon.ticket.domain.entities.Ticket
 import java.util.UUID
 
@@ -20,4 +21,6 @@ interface TicketRepository {
     fun reprove(ticketUUID: UUID, userUUID: UUID, description: String)
 
     fun exclude(ticketUUID: UUID, userUUID: UUID, description: String)
+
+    fun getSituationByCode(situationCode: Int): Situation?
 }

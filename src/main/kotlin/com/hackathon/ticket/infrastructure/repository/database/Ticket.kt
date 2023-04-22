@@ -15,4 +15,5 @@ object TicketDatabase : Table("ticket") {
     var modified_at = datetime("modified_at")
     var create_at = datetime("create_at")
     var contact = varchar("contact", 100)
+    var subject = reference("uuid_subject", SubjectDatabase.uuid)
 }

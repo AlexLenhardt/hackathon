@@ -2,40 +2,42 @@ package com.hackathon.ticket.domain.usecases.implementation
 
 import com.hackathon.ticket.domain.entities.Reprove
 import com.hackathon.ticket.domain.entities.Situation
+import com.hackathon.ticket.domain.entities.Situation.Companion.approved
+import com.hackathon.ticket.domain.entities.Situation.Companion.excluded
 import com.hackathon.ticket.domain.entities.Situation.Companion.pendentApproval
 import com.hackathon.ticket.domain.entities.Ticket
-import com.hackathon.ticket.domain.exceptions.TICKET_DATABASE_ERROR
-import com.hackathon.ticket.domain.exceptions.TICKET_NOT_FOUND
+import com.hackathon.ticket.domain.exception.SUBJECT_DATABASE_ERROR
 import com.hackathon.ticket.domain.exceptions.*
+import com.hackathon.ticket.domain.repository.ReasonRepository
 import com.hackathon.ticket.domain.repository.TicketRepository
 import com.hackathon.ticket.domain.usecases.TicketUseCases
 import com.hackathon.ticket.domain.usecases.response.ListTicketResponse
+import com.hackathon.ticket.domain.usecases.response.TicketResponse
 import com.hackathon.user.domain.entities.User
 import com.hackathon.user.domain.exceptions.USER_NOT_ALLOWED
-import com.hackathon.ticket.domain.usecases.response.TicketResponse
-import com.hackathon.ticket.infrastructure.repository.database.DescriptionTicketDatabase
 import com.hackathon.user.domain.repository.UserRepository
 import org.springframework.stereotype.Service
+import java.util.*
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
 class TicketUseCasesImplementation(
-    val ticketRepository: TicketRepository,
-    val userRepository: UserRepository
+        val ticketRepository: TicketRepository,
+        val reasonRepository: ReasonRepository,
+        val userRepository: UserRepository
 ) : TicketUseCases {
     override fun getAll(user: User): ListTicketResponse {
         return try {
             if (user.isColaborator()) {
                 ListTicketResponse(
-                    tickets = ticketRepository.listAllTicket(user.uuid!!)
+                        tickets = ticketRepository.listAllTicket(user.uuid!!)
                 )
             } else if (user.isManager()) {
                 ListTicketResponse(
-                    tickets = ticketRepository.listAllTicketApproval(user.uuid!!)
+                        tickets = ticketRepository.listAllTicketApproval(user.uuid!!)
                 )
             } else {
-                println("else")
                 ListTicketResponse(error = USER_NOT_ALLOWED)
             }
         } catch (e: Exception) {
@@ -51,33 +53,42 @@ class TicketUseCasesImplementation(
         } catch (e: Exception) {
             TicketResponse(error = TICKET_DATABASE_ERROR)
         }
-
     }
 
     override fun addTicket(ticket: Ticket?): TicketResponse {
 
         if (ticket == null) {
-            TicketResponse(error = TICKET_NOT_FOUND)
-        } else {
-            if (ticket.title == null) {
-                TITLE_NOT_FOUND
-            }
-            if (ticket.priority == null) {
-                PRIORITY_NOT_FOUND
-            }
-            if (ticket.user == null) {
-                USER_NOT_FOUND
-            }
-            if (ticket.contact == null) {
-                CONTACT_NOT_FOUND
-            }
-            if (ticket.reason == null) {
-                REASON_NOT_FOUND
-            }
+            return TicketResponse(error = TICKET_NOT_FOUND)
         }
-        ticketRepository.addTicket(ticket!!)
+        if (ticket.title == null) {
+            return TicketResponse(error = TITLE_NOT_FOUND)
+        }
+        if (ticket.priority!!.uuid == null) {
+            return TicketResponse(error = PRIORITY_NOT_FOUND)
+        }
+        if (ticket.user!!.uuid == null) {
+            return TicketResponse(error = USER_NOT_FOUND)
+        }
+        if (ticket.contact == null) {
+            return TicketResponse(error = CONTACT_NOT_FOUND)
+        }
+        if (ticket.reason!!.uuid == null) {
+            return TicketResponse(error = REASON_NOT_FOUND)
+        }
+        if (ticket.subject!!.uuid == null) {
+            return TicketResponse(error = SUBJECT_DATABASE_ERROR)
+        }
 
-        TODO("Not yet implemented")
+        val reason = reasonRepository.get(ticket.reason!!.uuid!!)
+
+        if (reason!!.needsApproval!!) {
+            ticket.situation = ticketRepository.getSituationByCode(pendentApproval)!!
+        } else {
+            ticket.situation = ticketRepository.getSituationByCode(approved)!!
+        }
+
+        ticketRepository.addTicket(ticket.copy(uuid = UUID.randomUUID()))
+        return TicketResponse()
     }
 
     override fun approval(uuid: UUID, userName: String): TicketResponse {
@@ -141,14 +152,13 @@ class TicketUseCasesImplementation(
             if (user!!.isManager()) {
                 return TicketResponse(error = TICKET_DOESNT_MANAGER_UPDATE)
             }
-            val bdTicket = ticketRepository.findByUUID(uuid)
-            if (bdTicket == null) {
-                return TicketResponse(error = TICKET_NOT_FOUND)
-            }
+
+            val bdTicket = ticketRepository.findByUUID(uuid) ?: return TicketResponse(error = TICKET_NOT_FOUND)
+
             if (user.uuid != bdTicket.user!!.uuid) {
                 return TicketResponse(error = TICKET_USER_DIFFERENT)
             }
-            if (bdTicket.situation!!.code == Situation.approved || bdTicket.situation!!.code == Situation.excluded){
+            if (bdTicket.situation!!.code == approved || bdTicket.situation!!.code == excluded){
                 return TicketResponse(error = SITUATION_NOT_ACCEPTED)
             }
             val response = validadesTicket(ticket)

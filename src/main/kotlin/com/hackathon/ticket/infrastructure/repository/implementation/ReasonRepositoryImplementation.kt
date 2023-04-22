@@ -36,6 +36,17 @@ class ReasonRepositoryImplementation : ReasonRepository {
         }
     }
 
+    override fun get(uuid: UUID): Reason? {
+        return transaction {
+            ReasonDatabase
+                    .select {
+                        ReasonDatabase.uuid eq uuid
+                    }
+                    .firstOrNull()
+                    ?.toReason()
+        }
+    }
+
     private fun getSubjectFromReason(reasonUUID: UUID): List<Subject> {
         return transaction {
             ReasonSubjectDatabase
